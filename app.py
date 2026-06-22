@@ -3,31 +3,35 @@ import pandas as pd
 import joblib
 
 
-# -------------------------------
-# Load Models
-# -------------------------------
+# ---------------------------
+# Load Saved Files
+# ---------------------------
 
 model = joblib.load(
     "models/fraud_model.pkl"
 )
 
 scaler = joblib.load(
-    "models/scaler (2).pkl"
+    "models/scaler.pkl"
 )
 
 encoder = joblib.load(
     "models/type_encoder.pkl"
 )
 
+feature_columns = joblib.load(
+    "models/feature_columns.pkl"
+)
 
 
-# -------------------------------
-# Page Configuration
-# -------------------------------
+
+# ---------------------------
+# Page Config
+# ---------------------------
 
 st.set_page_config(
 
-    page_title="Fraud Transaction Detector",
+    page_title="AI Fraud Detector",
 
     page_icon="💳",
 
@@ -37,14 +41,13 @@ st.set_page_config(
 
 
 
-# -------------------------------
+# ---------------------------
 # Title
-# -------------------------------
+# ---------------------------
 
 st.title(
     "💳 AI Powered Fraud Transaction Detector"
 )
-
 
 st.write(
     "Machine Learning based transaction fraud prediction system"
@@ -52,10 +55,9 @@ st.write(
 
 
 
-# -------------------------------
-# User Inputs
-# -------------------------------
-
+# ---------------------------
+# Inputs
+# ---------------------------
 
 step = st.number_input(
 
@@ -72,11 +74,17 @@ transaction_type = st.selectbox(
     "Transaction Type",
 
     [
+
         "PAYMENT",
+
         "TRANSFER",
+
         "CASH_OUT",
+
         "DEBIT",
+
         "CASH_IN"
+
     ]
 
 )
@@ -133,30 +141,46 @@ new_balance_dest = st.number_input(
 
 
 
-# -------------------------------
+# ---------------------------
 # Prediction
-# -------------------------------
+# ---------------------------
 
 
 if st.button("Predict Transaction"):
 
 
+    # Encode transaction type
+
     encoded_type = encoder.transform(
+
         [transaction_type]
+
     )[0]
 
 
+
+    # Feature Engineering
+
     balance_change_org = (
+
         old_balance_org -
+
         new_balance_org
+
     )
 
 
     balance_change_dest = (
+
         old_balance_dest -
+
         new_balance_dest
+
     )
 
+
+
+    # Create dataframe
 
     input_data = pd.DataFrame({
 
@@ -181,8 +205,13 @@ if st.button("Predict Transaction"):
     })
 
 
+    # Same order as training
 
-    # Scale amount
+    input_data = input_data[feature_columns]
+
+
+
+    # Scale amount only
 
     input_data["amount"] = scaler.transform(
 
@@ -192,12 +221,7 @@ if st.button("Predict Transaction"):
 
 
 
-    prediction = model.predict(
-
-        input_data
-
-    )
-
+    # Fraud probability
 
     probability = model.predict_proba(
 
@@ -207,16 +231,31 @@ if st.button("Predict Transaction"):
 
 
 
+    # Custom threshold
+
+    if probability > 0.30:
+
+        prediction = 1
+
+    else:
+
+        prediction = 0
+
+
+
     st.subheader(
         "Prediction Result"
     )
 
 
-    if prediction[0] == 1:
+
+    if prediction == 1:
 
 
         st.error(
+
             "⚠️ Fraud Transaction Detected"
+
         )
 
 
