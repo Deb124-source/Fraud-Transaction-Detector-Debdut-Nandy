@@ -16,7 +16,7 @@ scaler = joblib.load(
 )
 
 encoder = joblib.load(
-    "models/type_encoder.pkl"
+    "models/type_encoder (1).pkl"
 )
 
 feature_columns = joblib.load(
