@@ -12,7 +12,7 @@ model = joblib.load(
 )
 
 scaler = joblib.load(
-    "models/scaler.pkl"
+    "models/scaler (2).pkl"
 )
 
 encoder = joblib.load(
