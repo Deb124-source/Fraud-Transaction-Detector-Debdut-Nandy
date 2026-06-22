@@ -8,7 +8,7 @@ import joblib
 # ---------------------------
 
 model = joblib.load(
-    "models/fraud_model.pkl"
+    "models/fraud_model (1).pkl"
 )
 
 scaler = joblib.load(
